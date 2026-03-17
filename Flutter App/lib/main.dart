@@ -31,7 +31,9 @@ class ParkIo extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: theme.light(),
       darkTheme: theme.dark(),
-      routes: {'/': (_) => const SplashScreen(), '/home': (_) => const HomePage()},
+      routes: {
+        '/': (_) => const SplashScreen(), '/home': (_) => const HomePage(), // Other pages
+      },
     );
   }
 }

@@ -1,19 +1,17 @@
 // Packages
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 // Repositories
 import 'package:parkio/repository/auth.dart';
 
-final authControllerProvider = AsyncNotifierProvider<AuthController, GoogleSignInAccount?>(
-  AuthController.new,
-);
+final authControllerProvider = AsyncNotifierProvider<AuthController, User?>(AuthController.new);
 
-class AuthController extends AsyncNotifier<GoogleSignInAccount?> {
+class AuthController extends AsyncNotifier<User?> {
   late final AuthService _auth;
 
   @override
-  Future<GoogleSignInAccount?> build() async {
+  Future<User?> build() async {
     _auth = AuthService.instance;
     return _auth.currentUser;
   }
