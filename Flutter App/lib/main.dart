@@ -2,8 +2,10 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'firebase_options.dart';
+import 'pages/welcome_page.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const ParkIo());
 }
@@ -15,6 +17,9 @@ class ParkIo extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      theme: ThemeData(colorSchemeSeed: Colors.green, brightness: Brightness.light),
+      darkTheme: ThemeData(colorSchemeSeed: Colors.green, brightness: Brightness.dark),
+      home: const SplashScreen(),
     );
   }
 }
