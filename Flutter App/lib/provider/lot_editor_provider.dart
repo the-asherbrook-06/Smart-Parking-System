@@ -109,10 +109,18 @@ class LotEditorNotifier extends StateNotifier<LotEditorState> {
     bool rowEmpty(int r) => cells[r].every((c) => c.type == CellType.empty);
     bool colEmpty(int c) => cells.every((row) => row[c].type == CellType.empty);
 
-    while (top <= bottom && rowEmpty(top)) top++;
-    while (bottom >= top && rowEmpty(bottom)) bottom--;
-    while (left <= right && colEmpty(left)) left++;
-    while (right >= left && colEmpty(right)) right--;
+    while (top <= bottom && rowEmpty(top)) {
+      top++;
+    }
+    while (bottom >= top && rowEmpty(bottom)) {
+      bottom--;
+    }
+    while (left <= right && colEmpty(left)) {
+      left++;
+    }
+    while (right >= left && colEmpty(right)) {
+      right--;
+    }
 
     if (top > bottom || left > right) {
       return List.generate(3, (_) => List.generate(3, (_) => Cell.empty()));

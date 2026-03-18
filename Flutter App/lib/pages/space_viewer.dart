@@ -86,7 +86,7 @@ class SpaceViewer extends ConsumerWidget {
 
     return ListView.separated(
       itemCount: spaces.length,
-      separatorBuilder: (_, __) => const Divider(height: 1),
+      separatorBuilder: (_, _) => const Divider(height: 1),
       itemBuilder: (context, index) {
         final space = spaces[index];
 
@@ -96,7 +96,10 @@ class SpaceViewer extends ConsumerWidget {
           subtitle: Text("${space.lots.length} lots"),
           trailing: const Icon(Icons.chevron_right),
           onTap: () {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => LotViewer(spaceId: space.id)));
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => LotViewer(spaceId: space.id)),
+            );
           },
         );
       },
@@ -112,7 +115,10 @@ class SpaceViewer extends ConsumerWidget {
         return ListView(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
           children: [
-            Text("User Profile", style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+            Text(
+              "User Profile",
+              style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 16),
             Card(
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -135,8 +141,10 @@ class SpaceViewer extends ConsumerWidget {
                     const SizedBox(height: 12),
                     Text("Company Address", style: textTheme.bodyMedium),
                     const SizedBox(height: 4),
-                    Text("Door 23, Kilpauk, Chennai, Tamil Nadu, Chennai District, 600010",
-                        style: textTheme.bodySmall),
+                    Text(
+                      "Door 23, Kilpauk, Chennai, Tamil Nadu, Chennai District, 600010",
+                      style: textTheme.bodySmall,
+                    ),
                     const SizedBox(height: 16),
                     Text("Email", style: textTheme.bodyMedium),
                     const SizedBox(height: 4),
@@ -148,7 +156,9 @@ class SpaceViewer extends ConsumerWidget {
             const SizedBox(height: 16),
             FilledButton(
               onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Profile editing is coming soon.")));
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(const SnackBar(content: Text("Profile editing is coming soon.")));
               },
               child: const Text("Edit Profile"),
             ),
@@ -165,7 +175,9 @@ class SpaceViewer extends ConsumerWidget {
       data: (user) {
         final displayName = user?.displayName ?? 'Parkio User';
         final email = user?.email ?? 'No email';
-        final initials = displayName.isNotEmpty ? displayName.trim().split(" ").map((e) => e.isNotEmpty ? e[0] : "").join() : "P";
+        final initials = displayName.isNotEmpty
+            ? displayName.trim().split(" ").map((e) => e.isNotEmpty ? e[0] : "").join()
+            : "P";
 
         return ListView(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
@@ -201,22 +213,16 @@ class SpaceViewer extends ConsumerWidget {
             const SizedBox(height: 12),
             OutlinedButton(
               onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Account settings coming soon.")),
-                );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(const SnackBar(content: Text("Account settings coming soon.")));
               },
               child: const Text("Account Settings"),
             ),
             const SizedBox(height: 24),
             const Text("Support", style: TextStyle(fontWeight: FontWeight.bold)),
-            const ListTile(
-              leading: Icon(Icons.help_outline),
-              title: Text("Help center"),
-            ),
-            const ListTile(
-              leading: Icon(Icons.bug_report),
-              title: Text("Report a problem"),
-            ),
+            const ListTile(leading: Icon(Icons.help_outline), title: Text("Help center")),
+            const ListTile(leading: Icon(Icons.bug_report), title: Text("Report a problem")),
           ],
         );
       },
@@ -227,39 +233,57 @@ class SpaceViewer extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final spaces = ref.watch(spacesProvider);
+    final spacesAsync = ref.watch(spacesProvider);
     final currentIndex = ref.watch(bottomNavbarIndexProvider);
     final accountState = ref.watch(authControllerProvider);
 
     late final Widget body;
     late final String title;
-    Widget? floatingActionButton;
 
     switch (currentIndex) {
       case 1:
         title = "User Profile";
         body = _buildProfileView(context, accountState);
         break;
+
       case 2:
         title = "Account";
         body = _buildAccountView(context, ref, accountState);
         break;
+
       default:
-        final hasSpaces = spaces.isNotEmpty;
-        title = hasSpaces ? "Your Parkio Spaces" : "Parkio Spaces";
-        body = _buildSpacesBody(context, ref, spaces);
-        floatingActionButton = hasSpaces
-            ? FloatingActionButton(
-                onPressed: () => showCreateSpaceSheet(context, ref),
-                child: const Icon(Icons.add),
-              )
-            : null;
+        return spacesAsync.when(
+          loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
+
+          error: (e, _) => Scaffold(body: Center(child: Text("Error: $e"))),
+
+          data: (spaces) {
+            final hasSpaces = spaces.isNotEmpty;
+
+            return Scaffold(
+              appBar: AppBar(
+                title: Text(hasSpaces ? "Your Parkio Spaces" : "Parkio Spaces"),
+                centerTitle: false,
+              ),
+
+              body: _buildSpacesBody(context, ref, spaces),
+
+              floatingActionButton: hasSpaces
+                  ? FloatingActionButton(
+                      onPressed: () => showCreateSpaceSheet(context, ref),
+                      child: const Icon(Icons.add),
+                    )
+                  : null,
+
+              bottomNavigationBar: const BottomNavbar(),
+            );
+          },
+        );
     }
 
     return Scaffold(
       appBar: AppBar(title: Text(title), centerTitle: false),
       body: body,
-      floatingActionButton: floatingActionButton,
       bottomNavigationBar: const BottomNavbar(),
     );
   }

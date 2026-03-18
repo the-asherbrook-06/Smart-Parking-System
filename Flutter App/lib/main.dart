@@ -25,8 +25,6 @@ class ParkIo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final brightness = View.of(context).platformDispatcher.platformBrightness;
-
     TextTheme textTheme = createTextTheme(context, "Nunito Sans", "Nunito");
     MaterialTheme theme = MaterialTheme(textTheme);
     return MaterialApp(

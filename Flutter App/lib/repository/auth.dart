@@ -68,6 +68,8 @@
 //     _currentUser = null;
 //   }
 // }
+
+
 // Packages
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -79,6 +81,7 @@ class AuthService {
 
   final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
 
+  // ignore: unused_field
   GoogleSignInAccount? _currentUser;
   bool _isInitialized = false;
 
@@ -123,16 +126,17 @@ class AuthService {
     try {
       await _init(); // 🔥 auto init here
 
-      if (!await _googleSignIn.supportsAuthenticate()) {
+      // if (!await _googleSignIn.supportsAuthenticate()) {
+      if (!_googleSignIn.supportsAuthenticate()) {
         log("Google Sign-In not supported");
         return null;
       }
 
       final googleUser = await _googleSignIn.authenticate();
-      if (googleUser == null) {
-        log("User cancelled sign-in");
-        return null;
-      }
+      // if (googleUser == null) {
+      //   log("User cancelled sign-in");
+      //   return null;
+      // }
 
       final googleAuth = googleUser.authentication;
 
