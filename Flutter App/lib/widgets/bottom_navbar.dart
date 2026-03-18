@@ -16,7 +16,7 @@ class BottomNavbar extends ConsumerWidget {
   ];
 
   static final List<String> _labels = [
-    "Slot",
+    "Manage",
     "User"    
   ];
 
@@ -65,7 +65,7 @@ class BottomNavbar extends ConsumerWidget {
                         Icon(
                           _icons[index],
                           size: 24,
-                          color: isSelected ? Colors.blue : Colors.grey,
+                          color: isSelected ? Colors.black : Colors.grey,
                         ),
                         const SizedBox(height: 4),
                         AnimatedOpacity(
@@ -76,7 +76,7 @@ class BottomNavbar extends ConsumerWidget {
                             style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
-                              color: isSelected ? Theme.of(context).colorScheme.onSurface: Colors.grey,
+                              color: isSelected ? Theme.of(context).colorScheme.onPrimary: Colors.grey,
                             ),
                           ),
                         ),
