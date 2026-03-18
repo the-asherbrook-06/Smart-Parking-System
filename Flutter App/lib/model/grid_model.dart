@@ -18,14 +18,30 @@ class Grid {
   }
 
   Map<String, dynamic> toJson() {
-    return {"cells": cells.map((row) => row.map((cell) => cell.toJson()).toList()).toList()};
+    return {
+      "rows": rows,
+      "cols": cols,
+      "cells": [
+        for (int r = 0; r < rows; r++)
+          for (int c = 0; c < cols; c++) {"row": r, "col": c, ...cells[r][c].toJson()},
+      ],
+    };
   }
 
   factory Grid.fromJson(Map<String, dynamic> json) {
-    return Grid(
-      cells: (json["cells"] as List)
-          .map<List<Cell>>((row) => (row as List).map<Cell>((cell) => Cell.fromJson(cell)).toList())
-          .toList(),
-    );
+    final rows = json["rows"];
+    final cols = json["cols"];
+    final flatCells = json["cells"] as List;
+
+    final grid = List.generate(rows, (_) => List.generate(cols, (_) => Cell.empty()));
+
+    for (final item in flatCells) {
+      final r = item["row"];
+      final c = item["col"];
+
+      grid[r][c] = Cell.fromJson(item);
+    }
+
+    return Grid(cells: grid);
   }
 }
