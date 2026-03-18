@@ -7,12 +7,17 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1064399863768:android:cddff412fad869bfe83cad",
+        "mobilesdk_app_id": "1:1064399863768:android:f8174cfa7b0f1f75e83cad",
         "android_client_info": {
           "package_name": "app.parkio"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "1064399863768-mqa4mkh6i062ngmsb084i3bbgo85rtja.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCUOCjMXtq9Hy2VaOuF-WycpscrFogZ3d0"
@@ -20,7 +25,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1064399863768-mqa4mkh6i062ngmsb084i3bbgo85rtja.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1064399863768-pff7jai6m8pv8epf1jbm5it9j6c5h24g.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "app.parkio"
+              }
+            }
+          ]
         }
       }
     }

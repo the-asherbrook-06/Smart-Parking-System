@@ -7,7 +7,8 @@ import 'package:parkio/model/grid_model.dart';
 import 'package:parkio/model/cell_model.dart';
 import 'package:parkio/model/lot_model.dart';
 
-// Provider
+// Providers
+import 'package:parkio/provider/repository_provider.dart';
 import 'package:parkio/provider/space_provider.dart';
 
 // Pages
@@ -57,7 +58,7 @@ class LotViewer extends ConsumerWidget {
                 width: double.infinity,
                 child: FilledButton(
                   child: const Text("Create"),
-                  onPressed: () {
+                  onPressed: () async {
                     final name = controller.text.trim();
                     if (name.isEmpty) return;
 
@@ -67,9 +68,10 @@ class LotViewer extends ConsumerWidget {
                       grid: createStarterGrid(),
                     );
 
-                    ref.read(spacesProvider.notifier).addLot(spaceId, lot);
+                    await ref.read(spaceRepositoryProvider).addLot(spaceId, lot);
 
                     Navigator.pop(context);
+
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -88,45 +90,51 @@ class LotViewer extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final spaces = ref.watch(spacesProvider);
-    final space = spaces.firstWhere((s) => s.id == spaceId);
-    final lots = space.lots;
+    final lotsAsync = ref.watch(lotsProvider(spaceId));
 
-    if (lots.isEmpty) {
-      return Scaffold(
-        appBar: AppBar(title: Text(space.name)),
-        body: EmptyLotsView(onCreateLot: () => showCreateLotSheet(context, ref)),
-      );
-    }
+    return lotsAsync.when(
+      loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
+      error: (e, _) => Scaffold(body: Center(child: Text("Error: $e"))),
+      data: (lots) {
+        if (lots.isEmpty) {
+          return Scaffold(
+            appBar: AppBar(title: const Text("Lots")),
+            body: EmptyLotsView(onCreateLot: () => showCreateLotSheet(context, ref)),
+          );
+        }
 
-    return Scaffold(
-      appBar: AppBar(title: Text(space.name)),
-      body: ListView.builder(
-        itemCount: lots.length,
-        itemBuilder: (context, index) {
-          final lot = lots[index];
+        return Scaffold(
+          appBar: AppBar(title: const Text("Lots")),
 
-          return ListTile(
-            leading: const Icon(Icons.local_parking),
-            title: Text(lot.name),
-            subtitle: Text("${lot.grid.rows} × ${lot.grid.cols}"),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => LotVisualizer(spaceId: spaceId, lotId: lot.id),
-                ),
+          body: ListView.builder(
+            itemCount: lots.length,
+            itemBuilder: (context, index) {
+              final lot = lots[index];
+
+              return ListTile(
+                leading: const Icon(Icons.local_parking),
+                title: Text(lot.name),
+                subtitle: Text("${lot.grid.rows} × ${lot.grid.cols}"),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => LotVisualizer(spaceId: spaceId, lotId: lot.id),
+                    ),
+                  );
+                },
               );
             },
-          );
-        },
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => showCreateLotSheet(context, ref),
-        icon: const Icon(Icons.add),
-        label: const Text("New Lot"),
-      ),
+          ),
+
+          floatingActionButton: FloatingActionButton.extended(
+            onPressed: () => showCreateLotSheet(context, ref),
+            icon: const Icon(Icons.add),
+            label: const Text("New Lot"),
+          ),
+        );
+      },
     );
   }
 }

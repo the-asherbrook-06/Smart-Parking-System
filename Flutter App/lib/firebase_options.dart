@@ -42,7 +42,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions web = FirebaseOptions(
     apiKey: 'AIzaSyDLGcnZaNdhs1zoZBhGNfoaIThQaDHu8yQ',
-    appId: '1:1064399863768:web:13d38373bf24500de83cad',
+    appId: '1:1064399863768:web:4f03862e78f8e614e83cad',
     messagingSenderId: '1064399863768',
     projectId: 'app-parkio',
     authDomain: 'app-parkio.firebaseapp.com',
@@ -51,7 +51,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyCUOCjMXtq9Hy2VaOuF-WycpscrFogZ3d0',
-    appId: '1:1064399863768:android:cddff412fad869bfe83cad',
+    appId: '1:1064399863768:android:f8174cfa7b0f1f75e83cad',
     messagingSenderId: '1064399863768',
     projectId: 'app-parkio',
     storageBucket: 'app-parkio.firebasestorage.app',
@@ -59,28 +59,31 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyCMB_wkByFJhSBEmKloKLLQapXtg0Zy1xE',
-    appId: '1:1064399863768:ios:abfd0b59f4b93ccbe83cad',
+    appId: '1:1064399863768:ios:74a414bbc8d95f24e83cad',
     messagingSenderId: '1064399863768',
     projectId: 'app-parkio',
     storageBucket: 'app-parkio.firebasestorage.app',
+    iosClientId: '1064399863768-pff7jai6m8pv8epf1jbm5it9j6c5h24g.apps.googleusercontent.com',
     iosBundleId: 'app.parkio',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyCMB_wkByFJhSBEmKloKLLQapXtg0Zy1xE',
-    appId: '1:1064399863768:ios:abfd0b59f4b93ccbe83cad',
+    appId: '1:1064399863768:ios:74a414bbc8d95f24e83cad',
     messagingSenderId: '1064399863768',
     projectId: 'app-parkio',
     storageBucket: 'app-parkio.firebasestorage.app',
+    iosClientId: '1064399863768-pff7jai6m8pv8epf1jbm5it9j6c5h24g.apps.googleusercontent.com',
     iosBundleId: 'app.parkio',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
     apiKey: 'AIzaSyDLGcnZaNdhs1zoZBhGNfoaIThQaDHu8yQ',
-    appId: '1:1064399863768:web:f2bfd944d3be88b3e83cad',
+    appId: '1:1064399863768:web:9d463775984f67d4e83cad',
     messagingSenderId: '1064399863768',
     projectId: 'app-parkio',
     authDomain: 'app-parkio.firebaseapp.com',
     storageBucket: 'app-parkio.firebasestorage.app',
   );
+
 }

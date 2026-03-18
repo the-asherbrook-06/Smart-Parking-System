@@ -7,6 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:parkio/controller/auth.dart';
 
 // Providers
+import 'package:parkio/provider/repository_provider.dart';
 import 'package:parkio/provider/bottomnavbar.dart';
 import 'package:parkio/provider/space_provider.dart';
 
@@ -43,8 +44,8 @@ class SpaceViewer extends ConsumerWidget {
               const SizedBox(height: 16),
 
               TextField(
-                autofocus: true,
                 controller: controller,
+                autofocus: true,
                 decoration: InputDecoration(
                   labelText: "Space Name",
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
@@ -57,12 +58,11 @@ class SpaceViewer extends ConsumerWidget {
                 width: double.infinity,
                 child: FilledButton(
                   child: const Text("Create"),
-                  onPressed: () {
+                  onPressed: () async {
                     final name = controller.text.trim();
-
                     if (name.isEmpty) return;
 
-                    ref.read(spacesProvider.notifier).createSpace(name);
+                    await ref.read(spaceRepositoryProvider).createSpace(name);
 
                     Navigator.pop(context);
                   },

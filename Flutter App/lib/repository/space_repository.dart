@@ -1,40 +1,35 @@
+// Packages
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 // Models
-import 'package:parkio/model/space_model.dart';
+import 'package:parkio/model/lot_model.dart';
 
 class SpaceRepository {
-  final List<Space> _spaces = [];
+  final _db = FirebaseFirestore.instance;
 
-  List<Space> getSpaces() {
-    return _spaces;
+  // Create Space
+  Future<void> createSpace(String name) async {
+    final id = DateTime.now().millisecondsSinceEpoch.toString();
+    await _db.collection("spaces").doc(id).set({"id": id, "name": name});
   }
 
-  Space createSpace(String name) {
-    final space = Space(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      name: name,
-      lots: [],
-    );
-
-    _spaces.add(space);
-    return space;
+  // Add Lot
+  Future<void> addLot(String spaceId, Lot lot) async {
+    await _db.collection("spaces").doc(spaceId).collection("lots").doc(lot.id).set(lot.toJson());
   }
 
-  void deleteSpace(String id) {
-    _spaces.removeWhere((space) => space.id == id);
+  // Update Lot
+  Future<void> updateLot(String spaceId, Lot lot) async {
+    await _db.collection("spaces").doc(spaceId).collection("lots").doc(lot.id).update(lot.toJson());
   }
 
-  Space? getSpaceById(String id) {
-    try {
-      return _spaces.firstWhere((space) => space.id == id);
-    } catch (_) {
-      return null;
-    }
+  // Listen to Spaces
+  Stream<QuerySnapshot> watchSpaces() {
+    return _db.collection("spaces").snapshots();
   }
 
-  void updateSpace(Space updatedSpace) {
-    final index = _spaces.indexWhere((s) => s.id == updatedSpace.id);
-    if (index != -1) {
-      _spaces[index] = updatedSpace;
-    }
+  // Listen to Lots inside a Space
+  Stream<QuerySnapshot> watchLots(String spaceId) {
+    return _db.collection("spaces").doc(spaceId).collection("lots").snapshots();
   }
 }
