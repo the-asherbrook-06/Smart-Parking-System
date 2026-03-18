@@ -2,15 +2,17 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'firebase_options.dart';
 
 // Pages
 import 'package:parkio/pages/welcome_page.dart';
-import 'package:parkio/pages/home_page.dart';
+import 'package:parkio/pages/space_viewer.dart';
 
 // Themes
 import 'package:parkio/theme/theme.dart';
 import 'package:parkio/theme/util.dart';
+
+// Configs
+import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,7 +34,8 @@ class ParkIo extends StatelessWidget {
       theme: theme.light(),
       darkTheme: theme.dark(),
       routes: {
-        '/': (_) => const SplashScreen(), '/home': (_) => const HomePage(), // Other pages
+        '/': (_) => const SplashScreen(),
+        '/home': (_) => const SpaceViewer(),
       },
     );
   }

@@ -1,0 +1,4 @@
+enum CellStatus {
+  occupied,
+  unoccupied,
+}
