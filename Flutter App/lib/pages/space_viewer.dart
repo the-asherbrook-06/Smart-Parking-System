@@ -103,41 +103,60 @@ class SpaceViewer extends ConsumerWidget {
     );
   }
 
-  Widget _buildWalletView(BuildContext context) {
+  Widget _buildProfileView(BuildContext context, AsyncValue<User?> authState) {
     final textTheme = Theme.of(context).textTheme;
-    return ListView(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-      children: [
-        Text("Wallet Overview", style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
-        const SizedBox(height: 16),
-        Card(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Balance", style: textTheme.bodyMedium),
-                const SizedBox(height: 8),
-                Text("₹ 0.00", style: textTheme.displaySmall?.copyWith(color: Colors.green)),
-                const SizedBox(height: 16),
-                Text("You have no active parking credits.", style: textTheme.bodySmall),
-              ],
+    return authState.when(
+      data: (user) {
+        final name = user?.displayName ?? "Parkio User";
+        final email = user?.email ?? "Not provided";
+        return ListView(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+          children: [
+            Text("User Profile", style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 16),
+            Card(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("Name", style: textTheme.bodyMedium),
+                    const SizedBox(height: 4),
+                    Text(name, style: textTheme.titleMedium),
+                    const SizedBox(height: 12),
+                    Text("Company name", style: textTheme.bodyMedium),
+                    const SizedBox(height: 4),
+                    Text("Parkio Pvt Ltd.", style: textTheme.titleMedium),
+                    const SizedBox(height: 12),
+                    Text("Phone no", style: textTheme.bodyMedium),
+                    const SizedBox(height: 4),
+                    Text("+91 99999 12345", style: textTheme.titleMedium),
+                    const SizedBox(height: 12),
+                    Text("Company Address", style: textTheme.bodyMedium),
+                    const SizedBox(height: 4),
+                    Text("Door 23, Kilpauk, Chennai, Tamil Nadu, Chennai District, 600010",
+                        style: textTheme.bodySmall),
+                    const SizedBox(height: 16),
+                    Text("Email", style: textTheme.bodyMedium),
+                    const SizedBox(height: 4),
+                    Text(email, style: textTheme.bodySmall),
+                  ],
+                ),
+              ),
             ),
-          ),
-        ),
-        const SizedBox(height: 16),
-        Text("Activity", style: textTheme.titleMedium),
-        const SizedBox(height: 12),
-        const Card(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
-          child: ListTile(
-            leading: Icon(Icons.schedule),
-            title: Text("No recent transactions"),
-            subtitle: Text("Parkio keeps your history tidy."),
-          ),
-        ),
-      ],
+            const SizedBox(height: 16),
+            FilledButton(
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Profile editing is coming soon.")));
+              },
+              child: const Text("Edit Profile"),
+            ),
+          ],
+        );
+      },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, _) => Center(child: Text("Cannot load profile details: $error")),
     );
   }
 
@@ -218,8 +237,8 @@ class SpaceViewer extends ConsumerWidget {
 
     switch (currentIndex) {
       case 1:
-        title = "Wallet";
-        body = _buildWalletView(context);
+        title = "User Profile";
+        body = _buildProfileView(context, accountState);
         break;
       case 2:
         title = "Account";

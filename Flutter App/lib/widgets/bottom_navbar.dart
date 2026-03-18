@@ -76,7 +76,7 @@ class BottomNavbar extends ConsumerWidget {
                             style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
-                              color: isSelected ? Colors.blue : Colors.grey,
+                              color: isSelected ? Theme.of(context).colorScheme.onSurface: Colors.grey,
                             ),
                           ),
                         ),
