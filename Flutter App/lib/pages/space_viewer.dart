@@ -1,14 +1,23 @@
 // Packages
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
+// Controllers
+import 'package:parkio/controller/auth.dart';
 
 // Providers
+import 'package:parkio/provider/bottomnavbar.dart';
 import 'package:parkio/provider/space_provider.dart';
+
+// Models
+import 'package:parkio/model/space_model.dart';
 
 // Pages
 import 'package:parkio/pages/lot_viewer.dart';
 
 // Widgets
+import 'package:parkio/widgets/bottom_navbar.dart';
 import 'package:parkio/widgets/space_empty_state.dart';
 
 class SpaceViewer extends ConsumerWidget {
@@ -66,46 +75,173 @@ class SpaceViewer extends ConsumerWidget {
     );
   }
 
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final spaces = ref.watch(spacesProvider);
-
+  Widget _buildSpacesBody(BuildContext context, WidgetRef ref, List<Space> spaces) {
     if (spaces.isEmpty) {
-      return Scaffold(
-        appBar: AppBar(title: const Text("Parkio Spaces"), centerTitle: false),
-        body: EmptySpacesView(
-          onCreateSpace: () {
-            showCreateSpaceSheet(context, ref);
-          },
-        ),
+      return EmptySpacesView(
+        onCreateSpace: () {
+          showCreateSpaceSheet(context, ref);
+        },
       );
     }
 
-    return Scaffold(
-      appBar: AppBar(title: const Text("Your Parkio Spaces"), centerTitle: false,),
-      body: ListView.separated(
-        itemCount: spaces.length,
-        separatorBuilder: (_, __) => const Divider(height: 1),
-        itemBuilder: (context, index) {
-          final space = spaces[index];
+    return ListView.separated(
+      itemCount: spaces.length,
+      separatorBuilder: (_, __) => const Divider(height: 1),
+      itemBuilder: (context, index) {
+        final space = spaces[index];
 
-          return ListTile(
-            leading: const CircleAvatar(child: Icon(Icons.domain)),
-            title: Text(space.name),
-            subtitle: Text("${space.lots.length} lots"),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (_) => LotViewer(spaceId: space.id)));
-            },
-          );
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          showCreateSpaceSheet(context, ref);
-        },
-        child: const Icon(Icons.add),
-      ),
+        return ListTile(
+          leading: const CircleAvatar(child: Icon(Icons.domain)),
+          title: Text(space.name),
+          subtitle: Text("${space.lots.length} lots"),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () {
+            Navigator.push(context, MaterialPageRoute(builder: (_) => LotViewer(spaceId: space.id)));
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildWalletView(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    return ListView(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+      children: [
+        Text("Wallet Overview", style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+        const SizedBox(height: 16),
+        Card(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Balance", style: textTheme.bodyMedium),
+                const SizedBox(height: 8),
+                Text("₹ 0.00", style: textTheme.displaySmall?.copyWith(color: Colors.green)),
+                const SizedBox(height: 16),
+                Text("You have no active parking credits.", style: textTheme.bodySmall),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        Text("Activity", style: textTheme.titleMedium),
+        const SizedBox(height: 12),
+        const Card(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
+          child: ListTile(
+            leading: Icon(Icons.schedule),
+            title: Text("No recent transactions"),
+            subtitle: Text("Parkio keeps your history tidy."),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAccountView(BuildContext context, WidgetRef ref, AsyncValue<User?> authState) {
+    return authState.when(
+      data: (user) {
+        final displayName = user?.displayName ?? 'Parkio User';
+        final email = user?.email ?? 'No email';
+        final initials = displayName.isNotEmpty ? displayName.trim().split(" ").map((e) => e.isNotEmpty ? e[0] : "").join() : "P";
+
+        return ListView(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+          children: [
+            Center(
+              child: CircleAvatar(
+                radius: 40,
+                child: Text(initials, style: const TextStyle(fontSize: 24)),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Center(
+              child: Column(
+                children: [
+                  Text(displayName, style: Theme.of(context).textTheme.headlineSmall),
+                  const SizedBox(height: 4),
+                  Text(email, style: Theme.of(context).textTheme.bodySmall),
+                ],
+              ),
+            ),
+            const SizedBox(height: 32),
+            FilledButton(
+              onPressed: () async {
+                await ref.read(authControllerProvider.notifier).signOut();
+                ref.read(bottomNavbarIndexProvider.notifier).state = 0;
+
+                if (context.mounted) {
+                  Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+                }
+              },
+              child: const Text("Sign Out"),
+            ),
+            const SizedBox(height: 12),
+            OutlinedButton(
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Account settings coming soon.")),
+                );
+              },
+              child: const Text("Account Settings"),
+            ),
+            const SizedBox(height: 24),
+            const Text("Support", style: TextStyle(fontWeight: FontWeight.bold)),
+            const ListTile(
+              leading: Icon(Icons.help_outline),
+              title: Text("Help center"),
+            ),
+            const ListTile(
+              leading: Icon(Icons.bug_report),
+              title: Text("Report a problem"),
+            ),
+          ],
+        );
+      },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, _) => Center(child: Text("Unable to load profile: $error")),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final spaces = ref.watch(spacesProvider);
+    final currentIndex = ref.watch(bottomNavbarIndexProvider);
+    final accountState = ref.watch(authControllerProvider);
+
+    late final Widget body;
+    late final String title;
+    Widget? floatingActionButton;
+
+    switch (currentIndex) {
+      case 1:
+        title = "Wallet";
+        body = _buildWalletView(context);
+        break;
+      case 2:
+        title = "Account";
+        body = _buildAccountView(context, ref, accountState);
+        break;
+      default:
+        final hasSpaces = spaces.isNotEmpty;
+        title = hasSpaces ? "Your Parkio Spaces" : "Parkio Spaces";
+        body = _buildSpacesBody(context, ref, spaces);
+        floatingActionButton = hasSpaces
+            ? FloatingActionButton(
+                onPressed: () => showCreateSpaceSheet(context, ref),
+                child: const Icon(Icons.add),
+              )
+            : null;
+    }
+
+    return Scaffold(
+      appBar: AppBar(title: Text(title), centerTitle: false),
+      body: body,
+      floatingActionButton: floatingActionButton,
+      bottomNavigationBar: const BottomNavbar(),
     );
   }
 }

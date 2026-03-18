@@ -1,4 +1,6 @@
 // Packages
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -9,10 +11,18 @@ final authControllerProvider = AsyncNotifierProvider<AuthController, User?>(Auth
 
 class AuthController extends AsyncNotifier<User?> {
   late final AuthService _auth;
+  StreamSubscription<User?>? _authSubscription;
 
   @override
   Future<User?> build() async {
     _auth = AuthService.instance;
+    _authSubscription = FirebaseAuth.instance.authStateChanges().listen((user) {
+      if (!ref.mounted) return;
+      state = AsyncData(user);
+    });
+    ref.onDispose(() {
+      _authSubscription?.cancel();
+    });
     return _auth.currentUser;
   }
 
@@ -28,4 +38,5 @@ class AuthController extends AsyncNotifier<User?> {
     await _auth.signOut();
     state = const AsyncData(null);
   }
+
 }
