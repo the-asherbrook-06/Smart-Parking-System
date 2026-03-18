@@ -71,6 +71,33 @@ class LotEditorNotifier extends StateNotifier<LotEditorState> {
     return cells;
   }
 
+  List<List<Cell>> _fillInnerVoids(List<List<Cell>> cells) {
+    int rows = cells.length;
+    int cols = cells[0].length;
+
+    bool rowEmpty(int r) => cells[r].every((c) => c.type == CellType.empty);
+
+    bool colEmpty(int c) => cells.every((row) => row[c].type == CellType.empty);
+
+    for (int r = 1; r < rows - 1; r++) {
+      if (rowEmpty(r)) {
+        for (int c = 1; c < cols - 1; c++) {
+          cells[r][c] = const Cell(type: CellType.unusable);
+        }
+      }
+    }
+
+    for (int c = 1; c < cols - 1; c++) {
+      if (colEmpty(c)) {
+        for (int r = 1; r < rows - 1; r++) {
+          cells[r][c] = const Cell(type: CellType.unusable);
+        }
+      }
+    }
+
+    return cells;
+  }
+
   List<List<Cell>> _trimGrid(List<List<Cell>> cells) {
     if (cells.isEmpty) return cells;
 
@@ -80,29 +107,40 @@ class LotEditorNotifier extends StateNotifier<LotEditorState> {
     int right = cells[0].length - 1;
 
     bool rowEmpty(int r) => cells[r].every((c) => c.type == CellType.empty);
-
     bool colEmpty(int c) => cells.every((row) => row[c].type == CellType.empty);
 
-    // 🔹 Find content bounds (ignore outer padding for now)
     while (top <= bottom && rowEmpty(top)) top++;
     while (bottom >= top && rowEmpty(bottom)) bottom--;
     while (left <= right && colEmpty(left)) left++;
     while (right >= left && colEmpty(right)) right--;
 
-    // If everything empty → keep default grid
     if (top > bottom || left > right) {
       return List.generate(3, (_) => List.generate(3, (_) => Cell.empty()));
     }
 
-    // 🔥 ADD 1 LAYER PADDING BACK
     top = (top - 1).clamp(0, cells.length - 1);
     bottom = (bottom + 1).clamp(0, cells.length - 1);
     left = (left - 1).clamp(0, cells[0].length - 1);
     right = (right + 1).clamp(0, cells[0].length - 1);
 
-    return [
+    final trimmed = [
       for (int r = top; r <= bottom; r++) [for (int c = left; c <= right; c++) cells[r][c]],
     ];
+
+    int minRows = trimmed.length < 3 ? 3 : trimmed.length;
+    int minCols = trimmed[0].length < 3 ? 3 : trimmed[0].length;
+
+    final normalized = _fillInnerVoids(trimmed);
+
+    return List.generate(
+      minRows,
+      (r) => List.generate(minCols, (c) {
+        if (r < normalized.length && c < normalized[0].length) {
+          return normalized[r][c];
+        }
+        return Cell.empty();
+      }),
+    );
   }
 }
 
